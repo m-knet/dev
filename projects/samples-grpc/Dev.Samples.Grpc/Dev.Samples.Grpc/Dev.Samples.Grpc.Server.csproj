@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UserSecretsId>d4b98ca6-a338-4031-bb7f-aa9a2f5ad82f</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dev.Samples.Grpc.Contracts\Dev.Samples.Grpc.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>
