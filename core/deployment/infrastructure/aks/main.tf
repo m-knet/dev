@@ -1,6 +1,21 @@
+terraform {
+  required_version = "~> 0.12"
+  required_providers {
+    azurerm = "~> 1.41"
+    azuread = "~> 0.7"
+    random  = "~> 2.2"
+    helm    = "~> 0.10"
+  }
+}
+
+variable "PREFIX" {
+  type    = string
+  default = "mk"
+}
+
 variable "ENVIRONMENT" {
   type    = string
-  default = "dev"
+  default = ""
 }
 
 variable "NODE_COUNT" {
@@ -13,30 +28,28 @@ variable "VM_SIZE" {
   default = "Standard_B2s"
 }
 
-variable "LOCATION" {
-  type = string
-  default = "northeurope"
-}
-
 variable "K8S_VERSION" {
   type = string
-  default = "1.14.8"
+  default = "1.15.7"
+}
+
+variable "RG_CORE" {
+  type = string
 }
 
 locals {
-  prefix  = "${var.ENVIRONMENT}${local.project}"
+  prefix  = "${var.PREFIX}${var.ENVIRONMENT}${local.project}"
   project = "core"
 }
 
-resource "azurerm_resource_group" "core" {
+data "azurerm_resource_group" "core" {
   name     = local.prefix
-  location = var.LOCATION
 }
 
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = "${local.prefix}aks"
-  location            = azurerm_resource_group.core.location
-  resource_group_name = azurerm_resource_group.core.name
+  location            = data.azurerm_resource_group.core.location
+  resource_group_name = data.azurerm_resource_group.core.name
   dns_prefix          = "${local.prefix}aks"
   kubernetes_version  = var.K8S_VERSION
 
@@ -57,6 +70,21 @@ resource "azurerm_kubernetes_cluster" "aks" {
     }
   }
 
+  tags = {
+    Environment = var.ENVIRONMENT
+    Project     = local.project
+  }
+}
+
+resource "azurerm_devspace_controller" "devspace" {
+  name                = "dev"
+  location            = data.azurerm_resource_group.core.location
+  resource_group_name = data.azurerm_resource_group.core.name
+
+  sku_name = "S1"
+
+  target_container_host_resource_id        = azurerm_kubernetes_cluster.aks.id
+  target_container_host_credentials_base64 = base64encode(azurerm_kubernetes_cluster.aks.kube_config_raw)
 
   tags = {
     Environment = var.ENVIRONMENT
