@@ -1,15 +1,4 @@
 provider "helm" {
-  namespace = "kube-system"
-  init_helm_home = true
-  install_tiller = true
-  tiller_image = "gcr.io/kubernetes-helm/tiller:v2.15.1"
-  service_account = "default"
-  automount_service_account_token = true
-  max_history = 0
-  debug = false
-  plugins_disable = true
-  insecure = false
-  enable_tls = false
 }
 
 data "helm_repository" "stable" {

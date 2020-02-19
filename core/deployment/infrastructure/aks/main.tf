@@ -4,7 +4,7 @@ terraform {
     azurerm = "~> 1.41"
     azuread = "~> 0.7"
     random  = "~> 2.2"
-    helm    = "~> 0.10"
+    helm    = "~> 1.0"
   }
 }
 
